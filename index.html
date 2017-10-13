@@ -11,13 +11,17 @@
   console.log("script starts ............");
 
 
+  var myCode = 'alert(url);';
+  var initFunc = function(interpreter, scope) {
+    interpreter.setProperty(scope, 'url', String(location));
 
-
- var validation = "if (params.work_or_student  && params.name && params.age) { true }; false;";
-
-console.log(validation);
-
-var myInterpreter = new Interpreter(validation);
+    var wrapper = function(text) {
+      return alert(text);
+    };
+    interpreter.setProperty(scope, 'alert',
+        interpreter.createNativeFunction(wrapper));
+  };
+  var myInterpreter = new Interpreter(myCode, initFunc);
 
 
 

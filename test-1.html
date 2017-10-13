@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>JS-Interpreter Demo</title>
+	<script src="acorn.js"></script>
+	<script src="interpreter.js"></script>
+	<script>
+	var Ext = {version: '6.2'};
+	function addGlobals(interpreter, scope) {
+
+		var wrapper = function(target, value) {
+			return interpreter.setProperty(scope, target, value);			
+		};
+		interpreter.setProperty(scope, 'setGlobal', interpreter.createNativeFunction(wrapper));
+		
+
+		// interpreter.setProperty(scope, "data_hash", {name: 'Steve', age: 16});
+
+		var wrapper = function(field) {
+			return interpreter.createPrimitive(Ext[field]);
+		};
+		interpreter.setProperty(scope, 'getGlobal', interpreter.createNativeFunction(wrapper));
+
+		
+		var wrapper = function(id) {
+			return interpreter.createPrimitive(document.getElementById(id).value);
+		};
+		interpreter.setProperty(scope, 'getLocal', interpreter.createNativeFunction(wrapper));
+
+		var wrapper = function(msg) {
+			console.log(msg);
+		};
+
+		interpreter.setProperty(scope, 'log', interpreter.createNativeFunction(wrapper));
+
+	}
+	function validate(id) {
+		var code = document.getElementById(id).value;
+		var interpreter = new Interpreter(code, addGlobals);
+		var steps = 1000;
+		while (steps > 0 && interpreter.step()) {
+			--steps;
+		}
+		if (steps > 0) {
+			alert(interpreter.value);
+		}
+	}
+	</script>
+</head>
+<body>
+	<form>
+		<table>
+			<tr>
+				<td>Rule</td>
+				<td><textarea id="rule" cols="80" rows="2">getGlobal('version') == '6.2' && getLocal('fname') > '' && getLocal('lname') > ''</textarea></td>
+			</tr>
+			<tr>
+				<td>First Name</td>
+				<td><input type="text" id="fname" /></td>
+			</tr>
+			<tr>
+				<td>Last Name</td>
+				<td><input type="text" id="lname" /></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><button type="button" onclick="validate('rule')">Validate</button></td>
+			</tr>
+		</td>
+	</form>
+</body>
+</html>
